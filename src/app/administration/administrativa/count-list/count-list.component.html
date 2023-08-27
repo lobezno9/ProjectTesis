@@ -1,0 +1,107 @@
+<div class="card">
+    <div class="card-header ">
+        Listado Conteos de Almacenes
+    </div>
+    <div class="card-body">
+        <form [formGroup]="formList">
+            <!-- First Row Filters -->
+            <div class="row mt-1 mb-1">
+
+                <div class="col-md-2">
+                    <label class="required">Almacen:</label>
+                    <select class="form-control" formControlName="warehouseId">
+                        <option [ngValue]="0">Seleccione...</option>
+                        <option *ngFor="let itemWarehouse of listWehehouse" [ngValue]="itemWarehouse.id">
+                            {{itemWarehouse.name}}</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="required">Estado:</label>
+                    <select class="form-control" formControlName="state">
+                        <option [ngValue]="null">Seleccione...</option>
+                        <option [ngValue]="true">Activo</option>
+                        <option [ngValue]="false">Finalisado</option>
+                    </select>
+                </div>
+                <div class="col-md-1 text" style="margin-top:2%" *ngIf="btnBuscar">
+                    <button type="button" mat-flat-button color="primary" style="margin-left: 10px; float: right;"
+                        value="Buscar" (click)="OnSubmit()">Buscar</button>
+                </div>
+                <div class="col-md-1 text" style="margin-top:2%" *ngIf="btnCrear">
+                    <button type="button" mat-flat-button color="primary" style="margin-left: 10px; float: right;"
+                        value="Nuevo" (click)="open(modalCreateCount)">Nuevo</button>
+
+                </div>
+            </div>
+            <div class="row" style="padding-top: 1%;">
+
+                <div class="col-md-12">
+                    <table class="table table-sm table-hover">
+                        <thead class="thead-dark">
+                            <tr>
+
+                                <th scope="col">Id</th>
+                                <th scope="col">Descripcion</th>
+                                <th scope="col">Almacen</th>
+                                <th scope="col">Estado</th>
+                                <th scope="col">Fecha</th>
+                                <th scope="col" *ngIf="btnAbrir||btnActualizar||btnEliminar||btnIniciar">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                *ngFor="let item of listCountInventory | paginate:{itemsPerPage:10, currentPage: actualPage}">
+                                <td>{{item.id}} </td>
+                                <td>{{item.description}} </td>
+                                <td>{{item.wareHouse}} </td>
+                                <td>
+                                    <span *ngIf="item.state" class="badge badge-success"> Activo</span>
+                                    <span *ngIf="!item.state" class="badge badge-secondary"> Finalizado</span>
+                                </td>
+                                <td>{{item.dateCreation| date: 'dd/MM/yyyy'}} </td>
+                                <td *ngIf="btnAbrir||btnActualizar||btnEliminar||btnIniciar">
+                                    <button mat-icon-button *ngIf="btnActualizar" matTooltip="Modificar Conteo"
+                                        (click)="openEdit(modalCreateCount,item)">
+                                        <mat-icon color="primary">edit</mat-icon>
+                                    </button>
+                                    <button mat-icon-button *ngIf="btnIniciar" matTooltip="Iniciar Conteo"
+                                        (click)="InitCount(item)">
+                                        <mat-icon>qr_code_scanner</mat-icon>
+                                    </button>
+                                    <button mat-icon-button *ngIf="btnEliminar" matTooltip="Eliminar Conteo"
+                                        (click)="DeleteCount(item)">
+                                        <mat-icon color="warn">delete</mat-icon>
+                                    </button>
+                                    <button mat-icon-button *ngIf="btnAbrir" matTooltip="Detalle del conteo"
+                                        (click)="InfoCount(item)">
+                                        <mat-icon color="primary">info</mat-icon>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <pagination-controls class="text-center page-item" color="primary"
+                        (pageChange)="actualPage = $event" previousLabel="Anterior" nextLabel="Siguiente">
+                    </pagination-controls>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal create Count -->
+<ng-template #modalCreateCount let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title" *ngIf="itemSelected == null">Crear Conteo</h4>
+        <h4 class="modal-title" id="modal-basic-title" *ngIf="itemSelected != null">Editar Conteo</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">×</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <app-create-count [CountModel]="itemSelected"></app-create-count>
+    </div>
+</ng-template>
+
+<app-spinner [show]=showLoader></app-spinner>

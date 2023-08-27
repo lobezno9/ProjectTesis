@@ -1,0 +1,75 @@
+<form [formGroup]="formCreateCount">
+    <div class="row ">
+        <div class="col-md-12">
+            <mat-form-field>
+                <input matInput #description maxlength="60" required placeholder="Description" value="value"
+                    formControlName="description">
+                <mat-hint align="end">{{description.value.length}} / 60</mat-hint>
+            </mat-form-field>
+        </div>
+        <div class="col-md-12">
+            <mat-form-field>
+                <mat-label>Almacen</mat-label>
+                <mat-select formControlName="wareHouseId">
+                    <mat-option *ngFor="let item of listWehehouse" [value]="item.id">
+                        {{item.name}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <div class="col-md-4" *ngIf="!CountModel">
+            <mat-form-field>
+                <input matInput #numberCounts type="number" required placeholder="Numero de Conteos" value="value"
+                    formControlName="numberCounts" min="1" max="5" step="1" style="text-align: center;">
+            </mat-form-field>
+        </div>
+        <div class="col-md-4" *ngIf="CountModel">
+            <mat-slide-toggle formControlName="state">Activo!</mat-slide-toggle>
+        </div>
+        <div class="col-md-4" *ngIf="CountModel">
+            <button mat-flat-button color="primary" matTooltip="Agregar Conteo"
+                style="margin-right: 20px; font-size: 13px;" (click)="AddCountInventoryDetail()">+</button>
+        </div>
+        <br>
+        <!-- Row de FormArray para edicion de Conteos para agregar mas de ser necesario -->
+        <div class="col-md-12" *ngIf="CountModel">
+            <div formArrayName="countInventoryDetails" style="margin-left: 20px;">
+                <div *ngFor="let name of formCreateCount.get('countInventoryDetails')['controls']; index as idx"
+                    class="form-group">
+                    <div [formGroupName]="idx" class="row">
+                        <div class="col-md-2">
+                            <label class="required">Conteo:</label>
+                            <input class="form-control" type="number" formControlName="count" maxlength="1">
+                        </div>
+                        <div class="col-md-4">
+                            <br><br>
+                            <mat-slide-toggle formControlName="stateDet">Activo!</mat-slide-toggle>
+                        </div>
+                        <div class="col-md-4">
+                            <br><br>
+                            <mat-slide-toggle formControlName="isStarted">Iniciar?</mat-slide-toggle>
+                        </div>
+                        <div class="col-md-1" style="margin-top:2%;" *ngIf="countInventoryDetail.controls[idx].value.isNew">
+                            <br>
+                            <button mat-icon-button (click)="DeleteCountInventoryDetail(idx)" [disabled]="!countInventoryDetail.controls[idx].value.isNew">
+                                <mat-icon color="warn">delete </mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal creacion de Conteos de inventario -->
+    <!-- Row de boton para guardar  -->
+    <div class="row" style="margin-top: 10px;">
+        <div class="col-md-12 text-right">
+            <br>
+            <button type="button" mat-flat-button color="primary" style="margin-left: 10px;" (click)="OnSubmit()"
+                value="Enviar" [disabled]="!formCreateCount.valid"> Guardar </button>
+        </div>
+    </div>
+    <input type="hidden" formControlName="id">
+</form>
+<app-spinner [show]=showLoader></app-spinner>

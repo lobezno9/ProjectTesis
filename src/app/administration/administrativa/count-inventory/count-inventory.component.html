@@ -1,0 +1,193 @@
+<div class="card" style="padding: 0;">
+
+    <!--Row de card Header para definir el titulo del componente dependiendo del valor de detailCount-->
+    <div class="card-header " *ngIf="detailCount">
+        Detalle Conteo de inventario
+    </div>
+    <div class="card-header " *ngIf="!detailCount">
+        Conteo de inventario
+    </div>
+
+    <div class="card-body" style="font-size: 15px;">
+        <!-- Ros de formulario para la creacion del conteo de inventario -->
+        <form [formGroup]="formCountProduct" *ngIf="!detailCount">
+
+            <div class="row">
+                <div class="col-md-2">
+                    <label class="required"> Almacen :</label>
+                    <input required value="value" class="form-control" formControlName="wareHouseId">
+                </div>
+
+                <div class="col-md-2">
+                    <label class="required"># Conteo :</label>
+                    <select class="form-control" formControlName="idDetail" required>
+                        <option [ngValue]="null" hidden>Seleccione...</option>
+                        <option *ngFor="let item of ListCountInveDetail" [ngValue]="item.id">{{item.count}} </option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="required"> Barcode :</label>
+                    <input type="text" ngxBarCodePut maxlength="86" [skipStart]="3" [debounce]="300"
+                        autocomplete="off" (onDelete)="onDelete($event)" (onDetected)="onDetected($event)"
+                        formControlName="barcodeCode" class="form-control" required>
+                </div>
+
+            </div>
+
+        </form>
+
+        <div class="row" style="padding-top: 1%;">
+
+            <!-- Row de tabla utilizada para cargar la lista del reporte del conteo -->
+            <div class="col-md-12" *ngIf="!detailCount">
+                <table class="table table-sm table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col"># Producto</th>
+                            <th scope="col">Usuario</th>
+                            <th scope="col">Producto</th>
+                            <th scope="col" *ngIf="Count1">Conteo 1</th>
+                            <th scope="col" *ngIf="Count2">Conteo 2</th>
+                            <th scope="col" *ngIf="Count3">Conteo 3</th>
+                            <th scope="col" *ngIf="Count4">Conteo 4</th>
+                            <th scope="col" *ngIf="Count5">Conteo 5</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor=" let item of listCountP">
+                            <td> {{item.productId==0?'':item.productId}} </td>
+                            <td> {{item.user==0?'':item.user}} </td>
+                            <td> {{item.nameProduct==0?'':item.nameProduct}} </td>
+                            <td *ngIf="Count1"> {{item.count1==0?'':item.count1|number}} </td>
+                            <td *ngIf="Count2"> {{item.count2==0?'':item.count2|number}} </td>
+                            <td *ngIf="Count3"> {{item.count3==0?'':item.count3|number}} </td>
+                            <td *ngIf="Count4"> {{item.count4==0?'':item.count4|number}} </td>
+                            <td *ngIf="Count5"> {{item.count5==0?'':item.count5|number}} </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <br>
+        </div>
+
+        <mat-tab-group mat-align-tabs="start" dynamicHeight *ngIf="detailCount">
+            <mat-tab label="Reporte Conteos">
+
+                <!-- Row de formulario para el detalle del conteo con filtos -->
+                <form [formGroup]="formDetailCount" *ngIf="detailCount">
+                    <div class="row">
+                        <div class="col-md-1">
+                            <label class="required">Id Producto :</label>
+                            <input value="value" class="form-control" type="text" formControlName="productId"
+                                (change)="GetReportFilter()">
+
+                        </div>
+                        <div class="col-md-1.5">
+                            <br>
+                            <br>
+                            <mat-slide-toggle formControlName="isUsers" (change)="GetReportFilter()">Con Usuarios?
+                            </mat-slide-toggle>
+                        </div>
+                        <div class="col-md-2" *ngIf="isUser">
+                            <label class="required">Usuario :</label>
+                            <select class="form-control" formControlName="userId" (change)="GetReportFilter()">
+                                <option [ngValue]="0">Seleccione...</option>
+                                <option *ngFor="let item of listUsers" [ngValue]="item.id">{{item.firstName +'
+                                    '+item.lastName}}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-1 text" style="margin-top:2%">
+                            <button type="button" mat-flat-button color="primary"
+                                style="margin-left: 10px; float: right;" value="Nuevo"
+                                (click)="export()">Exportar</button>
+                        </div>
+                    </div>
+                </form>
+                <div class="row" style="padding-top: 1%;">
+                    <!-- Row de tabla dinamica utilizada para cargar la lista del reporte de conteo general o por usuario  -->
+                    <div class="container-fluid" *ngIf="detailCount">
+                        <table class="table table-sm table-hover" id="ExportTable">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col"># Producto</th>
+                                    <th scope="col" *ngIf="isUser">Usuario</th>
+                                    <th scope="col" *ngIf="isUser">Fecha Modificación</th>
+                                    <th scope="col">Producto</th>
+                                    <th scope="col">Conteo 1</th>
+                                    <th scope="col">Conteo 2</th>
+                                    <th scope="col">Conteo 3</th>
+                                    <th scope="col">Conteo 4</th>
+                                    <th scope="col">Conteo 5</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor=" let item of listCountP">
+                                    <td> {{item.productId==0?'':item.productId}} </td>
+                                    <td *ngIf="isUser">{{item.user==0?'':item.user}} </td>
+                                    <td *ngIf="isUser">
+                                        {{item.dateModification=='0001-01-01T00:00:00'?'':
+                                        item.dateModification|date: 'd/M/yy, h:mm:ss a'}}
+                                    </td>
+                                    <td> {{item.nameProduct==0?'':item.nameProduct}} </td>
+                                    <td> {{item.count1==0?'':item.count1|number}} </td>
+                                    <td> {{item.count2==0?'':item.count2|number}} </td>
+                                    <td> {{item.count3==0?'':item.count3|number}} </td>
+                                    <td> {{item.count4==0?'':item.count4|number}} </td>
+                                    <td> {{item.count5==0?'':item.count5|number}} </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </mat-tab>
+
+            <mat-tab label="Reporte Resultado Conteos">
+                <div class="row">
+                    <div class="col-md-1 text" style="margin-top:2%">
+                        <button type="button" mat-flat-button color="primary" style="margin-left: 10px;" value="Nuevo"
+                            (click)="export1()">Exportar</button>
+                    </div>
+                </div>
+                <div class="row" style="padding-top: 1%;">
+                    <!-- Row de tabla dinamica utilizada para cargar la lista del reporte de resultados  -->
+                    <div class="container-fluid" *ngIf="detailCount">
+                        <table class="table table-sm table-hover" id="ExportTable1">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col"># Producto</th>
+                                    <th scope="col">Producto</th>
+                                    <th scope="col">Conteo 1</th>
+                                    <th scope="col">Conteo 2</th>
+                                    <th scope="col">Conteo 3</th>
+                                    <th scope="col">Conteo 4</th>
+                                    <th scope="col">Conteo 5</th>
+                                    <th scope="col">Dif 1</th>
+                                    <th scope="col">Dif 2</th>
+                                    <th scope="col">Dif 3</th>
+                                    <th scope="col">Dif 4</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor=" let item of listResultCountP">
+                                    <td> {{item.productId==0?'':item.productId}} </td>
+                                    <td> {{item.nameProduct==0?'':item.nameProduct}} </td>
+                                    <td> {{item.count1==0?'':item.count1|number}} </td>
+                                    <td> {{item.count2==0?'':item.count2|number}} </td>
+                                    <td> {{item.count3==0?'':item.count3|number}} </td>
+                                    <td> {{item.count4==0?'':item.count4|number}} </td>
+                                    <td> {{item.count5==0?'':item.count5|number}} </td>
+                                    <td>{{item.dif1|number}} </td>
+                                    <td>{{item.dif2|number}} </td>
+                                    <td>{{item.dif3|number}} </td>
+                                    <td>{{item.dif4|number}} </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </mat-tab>
+        </mat-tab-group>
+    </div>
+</div>
